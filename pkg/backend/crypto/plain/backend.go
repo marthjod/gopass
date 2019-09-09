@@ -3,6 +3,7 @@ package plain
 import (
 	"context"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -168,6 +169,11 @@ func (m *Mocker) EmailFromKey(context.Context, string) string {
 // NameFromKey returns nothing
 func (m *Mocker) NameFromKey(context.Context, string) string {
 	return ""
+}
+
+// ExpirationDateFromKey is not implemented.
+func (m *Mocker) ExpirationDateFromKey(ctx context.Context, id string) (time.Time, error) {
+	return time.Time{}, errors.New("not implemented")
 }
 
 // FormatKey returns the id

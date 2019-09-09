@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"time"
 
 	"golang.org/x/crypto/openpgp"
 	"golang.org/x/crypto/openpgp/clearsign"
@@ -230,6 +231,11 @@ func (g *GPG) NameFromKey(ctx context.Context, id string) string {
 		return id.UserId.Name
 	}
 	return ""
+}
+
+// ExpirationDateFromKey is not implemented.
+func (g *GPG) ExpirationDateFromKey(ctx context.Context, id string) (time.Time, error) {
+	return time.Time{}, errors.New("not implemented")
 }
 
 // FormatKey returns the id

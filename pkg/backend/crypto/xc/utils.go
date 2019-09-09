@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/gopasspw/gopass/pkg/backend/crypto/xc/keyring"
 	"github.com/gopasspw/gopass/pkg/backend/crypto/xc/xcpb"
@@ -110,6 +111,11 @@ func (x *XC) EmailFromKey(ctx context.Context, id string) string {
 		return key.PublicKey.Identity.Email
 	}
 	return id
+}
+
+// ExpirationDateFromKey is not implemented.
+func (x *XC) ExpirationDateFromKey(ctx context.Context, id string) (time.Time, error) {
+	return time.Time{}, errors.New("not implemented")
 }
 
 // Fingerprint returns the full-length native fingerprint

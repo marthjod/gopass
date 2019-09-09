@@ -67,6 +67,10 @@ gopass
 	assert.Error(t, act.RecipientsRemove(ctx, c))
 	buf.Reset()
 
+	// RecipientsPrintExpiration
+	assert.Error(t, act.RecipientsPrintExpiration(ctx, c))
+	buf.Reset()
+
 	// RecipientsAdd 0xFEEDBEEF
 	fs = flag.NewFlagSet("default", flag.ContinueOnError)
 	assert.NoError(t, fs.Parse([]string{"0xFEEDBEEF"}))

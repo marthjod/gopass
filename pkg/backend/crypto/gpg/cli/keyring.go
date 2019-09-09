@@ -5,6 +5,7 @@ import (
 	"context"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/gopasspw/gopass/pkg/backend/crypto/gpg"
 	"github.com/gopasspw/gopass/pkg/out"
@@ -112,6 +113,11 @@ func (g *GPG) EmailFromKey(ctx context.Context, id string) string {
 // NameFromKey extracts the name from a key id
 func (g *GPG) NameFromKey(ctx context.Context, id string) string {
 	return g.findKey(ctx, id).Identity().Name
+}
+
+// ExpirationDateFromKey returns a key ID's expiration date.
+func (g *GPG) ExpirationDateFromKey(ctx context.Context, id string) (time.Time, error) {
+	return g.findKey(ctx, id).ExpirationDate, nil
 }
 
 // FormatKey formats the details of a key id

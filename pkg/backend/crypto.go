@@ -2,6 +2,7 @@ package backend
 
 import (
 	"context"
+	"time"
 
 	"github.com/blang/semver"
 )
@@ -40,6 +41,7 @@ type Keyring interface {
 	FormatKey(ctx context.Context, id string) string
 	NameFromKey(ctx context.Context, id string) string
 	EmailFromKey(ctx context.Context, id string) string
+	ExpirationDateFromKey(ctx context.Context, id string) (time.Time, error)
 	Fingerprint(ctx context.Context, id string) string
 	ReadNamesFromKey(ctx context.Context, buf []byte) ([]string, error)
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"time"
 
 	"github.com/gopasspw/gopass/pkg/ctxutil"
 	"github.com/gopasspw/gopass/pkg/cui"
@@ -11,6 +12,7 @@ import (
 	"github.com/gopasspw/gopass/pkg/store"
 	"github.com/gopasspw/gopass/pkg/store/sub"
 	"github.com/gopasspw/gopass/pkg/termio"
+	"github.com/pkg/errors"
 
 	"github.com/urfave/cli"
 )
@@ -45,6 +47,49 @@ func (s *Action) RecipientsPrint(ctx context.Context, c *cli.Context) error {
 
 	fmt.Fprintln(stdout, tree.Format(0))
 	return nil
+}
+
+// RecipientsPrintExpiration prints all recipients whose key has expired or will expire before the threshold provided.
+func (s *Action) RecipientsPrintExpiration(ctx context.Context, c *cli.Context) error {
+	store := c.String("store")
+	warnThreshold := c.Duration("warn-threshold")
+	expirationErr := errors.New("key(s) expired/expiring")
+	hasErr := false
+
+	crypto := s.Store.Crypto(ctx, store)
+	if crypto == nil {
+		return errors.New("nil crypto backend")
+	}
+
+	for _, recipient := range s.Store.ListRecipients(ctx, store) {
+		r := "0x" + recipient
+		expiration, err := crypto.ExpirationDateFromKey(ctx, recipient)
+		if err != nil {
+			return err
+		}
+		name := crypto.NameFromKey(ctx, recipient)
+		if notice, warn := renderExpirationNotice(expiration, warnThreshold); warn {
+			fmt.Fprintf(stdout, "%s (%s) %s\n", r, name, notice)
+			hasErr = true
+		}
+	}
+	if hasErr {
+		return expirationErr
+	}
+	return nil
+}
+
+func renderExpirationNotice(expirationDate time.Time, warnThreshold time.Duration) (notice string, warn bool) {
+	// some keys are set to be valid forever
+	if !expirationDate.IsZero() {
+		if time.Now().After(expirationDate) {
+			return fmt.Sprintf("expired at %s", expirationDate), true
+		}
+		if expirationDate.Before(time.Now().Add(warnThreshold)) {
+			return fmt.Sprintf("expiring in ~%s at %s", time.Until(expirationDate).Truncate(time.Hour), expirationDate), true
+		}
+	}
+	return "", false
 }
 
 // RecipientsComplete will print a list of recipients for bash

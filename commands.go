@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
 
 	ap "github.com/gopasspw/gopass/pkg/action"
 	"github.com/gopasspw/gopass/pkg/action/binary"
@@ -938,6 +939,26 @@ func getCommands(ctx context.Context, action *ap.Action, app *cli.App) []cli.Com
 					Before: func(c *cli.Context) error { return action.Initialized(withGlobalFlags(ctx, c), c) },
 					Action: func(c *cli.Context) error {
 						return action.RecipientsUpdate(withGlobalFlags(ctx, c), c)
+					},
+				},
+				{
+					Name:  "expiration",
+					Usage: "Show expiration info for recipients",
+					Description: "" +
+						"This command prints expired keys and keys expiring before the given warning threshold.",
+					Action: func(c *cli.Context) error {
+						return action.RecipientsPrintExpiration(withGlobalFlags(ctx, c), c)
+					},
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "store",
+							Usage: "Store to operate on",
+						},
+						cli.DurationFlag{
+							Name:  "warn-threshold",
+							Usage: "Warning threshold (time.Duration format)",
+							Value: 3 * 730 * time.Hour, // 3 months
+						},
 					},
 				},
 			},
